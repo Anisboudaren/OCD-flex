@@ -17,46 +17,6 @@ const WILAYAS =[
 const checkout_fields = {
     "data": [
     {
-        "custom": true,
-        "name": "last_name",
-        "display_name": "الإسم الكامل",
-        "placeholder": "الإسم و اللقب",
-        "type": "text",
-        "options": [],
-        "required": true,
-        "enabled": true
-    },
-    {
-        "custom": true,
-        "name": "phone",
-        "display_name": "رقم الهاتف",
-        "placeholder": "رقم الهاتف",
-        "type": "text",
-        "options": [],
-        "required": true,
-        "enabled": true
-    },
-    {
-        "custom": true,
-        "name": "custom_field_YjaDvyi8M479D7Jz",
-        "display_name": "الولاية",
-        "placeholder": "اختر الولاية",
-        "type": "select",
-        "options": WILAYAS , 
-        "required": true,
-        "enabled": true
-    },
-    {
-        "custom": true,
-        "name": "custom_field_11YoyBlMHv9J9Q7l",
-        "display_name": "البلدية",
-        "placeholder": "اختر البلدية",
-        "type": "text",
-        "options": [],
-        "required": true,
-        "enabled": true
-    },
-    {
         "custom": false,
         "name": "email",
         "display_name": "Email",

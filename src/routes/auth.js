@@ -1,8 +1,7 @@
 const router = require('express').Router()
 const passport = require('passport');
-const {register_new_client , loginIn}  = require("../controllers/auth");
-const { send } = require('process');
-
+const {register_new_client }  = require("../controllers/auth");
+const otpController = require('../controllers/otp');
 router.post('/register', register_new_client);
 
 router.post('/login', 
@@ -11,10 +10,6 @@ router.post('/login',
       res.send({ message: 'Login successful', user: req.user });
     }
   );
-router.get("/nigga", (req, res) => {
-  console.log("did i even get to here" , req.user);
- 
-}
-);
+router.post('/send-otp', otpController.sendOTP);
 
 module.exports = router

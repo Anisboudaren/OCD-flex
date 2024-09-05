@@ -23,19 +23,27 @@ function transformOrders(rawOrders) {
   const transformedOrders = rawOrders.map(order => ({
     id: order.id,
     ref: order.ref,
-    creationDate: new Date(order.created_at).toISOString().split('T')[0], // Formatting date to YYYY-MM-DD
-    paymentStatus: order.payment_status_new ?? 'Unknown', // Default value if payment_status_new is missing
-    shippingStatus: order.shipping?.status_text ?? 'Not available', // Default value if shipping or status_text is missing
+    creationDate: new Date(order.created_at).toISOString().split('T')[0], 
+    paymentStatus: order.payment_status_new ?? 'Unknown', 
+    shippingStatus: order.shipping?.status_text ?? 'Not available', 
     product: {
-      link: order.variants[0]?.extra_fields?.referer_url ?? 'No link available', // Default value if referer_url is missing
-      name: order.variants[0]?.variant?.product?.name ?? 'No name available', // Default value if product or name is missing
-      imageLink: order.variants[0]?.variant?.product?.thumbnail ?? 'No image available' // Default value if thumbnail is missing
+      link: order.variants[0]?.extra_fields?.referer_url ?? 'No link available', 
+      name: order.variants[0]?.variant?.product?.name ?? 'No name available', 
+      imageLink: order.variants[0]?.variant?.product?.thumbnail ?? 'No image available' 
     },
-    total: order.total ? order.total.toFixed(2) : '0.00' // Default value if total is missing or invalid
+    customer: {
+      id: order.customer.id,
+      fullName: order.customer.full_name.trim() || 'Anonymous',
+      email: order.customer.email || 'No email provided',
+      phone: order.customer.phone || 'No phone provided',
+      avatar: order.customer.avatar || 'No avatar available',
+      country: order.customer.country || 'No country specified',
+      createdAt: new Date(order.customer.created_at).toISOString().split('T')[0], // Only date
+    },
+    total: order.total ? order.total.toFixed(2) : '0.00' 
   }));
   
-
-  // Wrap the transformed orders in the desired nested array structure
+  
   return {
     orders: transformedOrders 
   };
@@ -128,7 +136,7 @@ const get_youcan_orders = async (req, res) => {
    
   try {
       // Fetch orders from external API
-      const apiResponse = await axios.get('https://api.youcan.shop/orders', {
+      const apiResponse = await axios.get('https://api.youcan.shop/orders?include=customer', {
           headers: {
               Authorization: `Bearer ${req.authToken}`, // Include the token in the Authorization header
           },
