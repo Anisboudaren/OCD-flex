@@ -24,7 +24,7 @@ const isYoucanAuth = async (req , res , next) => {
 const isZrAuth = async (req , res , next) => {
   try {
     const zr = await zrAccount.findOne({ userId: req.user.id });
-    console.log(zr);
+    
     if (zr && zr.token) {
       req.token = zr.token
       req.key = zr.key

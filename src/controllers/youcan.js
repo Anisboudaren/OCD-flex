@@ -2,7 +2,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const  YouCanAccount  = require('../models/youcan-account'); // Import the YouCanAccount model
 const {checkout_fields} = require("../enums/checkout_fields")
-
+const { stringify } = require('flatted');
 
 // fucntions to use 
 async function loginYoucan(email, password) {
@@ -188,30 +188,38 @@ const get_youcan_one_order = async (req, res) => {
 }
 const update_youcan_checkout = async (req, res) => {
   try {
-      // Fetch orders from external API
-      console.log(req.authToken);
-      const apiResponse = await axios.put('https://api.youcan.shop/settings/checkout/fields', {
-          headers: {
-              Authorization: `Bearer ${req.authToken}`,
-          },
-          body : checkout_fields
-      });
+    // Log the payload being sent
+    console.log('Stringified checkout_fields:', JSON.stringify(checkout_fields));
+    
+    // Make the API request
+    const apiResponse = await axios.put('https://api.youcan.shop/settings/checkout/fields', checkout_fields, {
+      headers: {
+        Authorization: `Bearer ${req.authToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
+    // Log the response from the API
+    console.log('API Response:', apiResponse.data);
 
-      // Send the transformed data as response
-      res.status(200).json(apiResponse);
+    // Send the response from the API
+    res.status(200).json(apiResponse.data);
 
   } catch (error) {
-      // Error handling
-      const statusCode = error.response ? error.response.status : 500;
-      const errorMessage = error.response ? error.response.data : error.message;
+    // Log the error details
+    console.error('Error details:', error);
 
-      res.status(statusCode).json({
-          message: 'Error updating the checkout fields for your Youcan store',
-          error: errorMessage,
-      });
+    // Handle errors
+    const statusCode = error.response ? error.response.status : 500;
+    const errorMessage = error.response ? error.response.data : error.message;
+
+    res.status(statusCode).json({
+      message: 'Error updating the checkout fields for your Youcan store',
+      error: errorMessage,
+    });
   }
-}
+};
+
 
 module.exports = {
   request_youcan_token ,
