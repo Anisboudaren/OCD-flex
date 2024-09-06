@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+
 
 // controllers/otpController.js
 const otpGenerator = require('otp-generator');
