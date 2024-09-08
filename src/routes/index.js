@@ -9,8 +9,8 @@ const router = express.Router();
 
 
 router.use('/auth', authRoutes);  
-router.use('/profile' , profileRouter)
+router.use('/profile'  , isAuth , profileRouter)
 router.use('/youcan' , isAuth , youcanRouter)
-router.use('/zr' , zrexpress)
+router.use('/zr' , isAuth , zrexpress)
 
 module.exports = router;
