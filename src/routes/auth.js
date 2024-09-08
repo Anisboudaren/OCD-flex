@@ -1,15 +1,17 @@
 const router = require('express').Router()
-const passport = require('passport');
-const {register_new_client }  = require("../controllers/auth");
+const authController  = require("../controllers/auth");
 const otpController = require('../controllers/otp');
-router.post('/register', register_new_client);
 
-router.post('/login', 
-    passport.authenticate('local'), 
-    (req, res) => {
-      res.send({ message: 'Login successful', user: req.user });
-    }
-  );
+//pre login 
+router.post("/checker" , authController.register_checker)
 router.post('/send-otp', otpController.sendOTP);
+router.post('/register', authController.register_new_client);
+
+
+//post login
+router.post('/login' , authController.login_client);
+router.post('/logout', authController.logout_client);
+  
+
 
 module.exports = router

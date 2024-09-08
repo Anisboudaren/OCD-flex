@@ -21,12 +21,39 @@ passport.deserializeUser(async function(id, done) {
 });
 
 passport.use(new LocalStrategy(
-  async function(username, password, done) {
-    // authenticate user
+  {
+    usernameField: 'identifier', // Allow login with either email or username
+    passwordField: 'password',
+  },
+  async function(identifier, password, done) {
     try {
-      let user = await User.findOne({ username: username })
-      if (!user) { return done(null, false); }
-      if (!user.comparePassword(password)) { return done(null, false); }
+      // Check if the identifier is an email or username
+      let user = await User.findOne({
+        $or: [{ email: identifier }, { username: identifier }]
+      });
+
+      // If no user is found
+      if (!user) {
+        return done(null, false, { message: 'Incorrect email or username.' });
+      }
+      console.log((await user.isAccountLocked()))
+      // Check if the account is locked
+      if (await user.isAccountLocked()) {
+        return done(null, false, { message: 'too many tries , Please try again after 5 min' });
+      }
+
+      // Check if password is correct
+      const isPassword = await user.comparePassword(password);
+      if (!isPassword) {
+        // Increment failed login attempts
+        await user.incLoginAttempts();
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+
+      // Reset failed login attempts on successful login
+      await user.resetLoginAttempts();
+
+      // Authentication successful
       return done(null, user);
     } catch (err) {
       return done(err);
