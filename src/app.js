@@ -38,9 +38,8 @@ require("./middleware/auth/local-strategie.js")
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 // require("./middleware/auth/google-strategie.js")
-const isAuth = require("./middleware/auth/authenticated.js")
+
 //handles coming requests
 app.use('/api' , routes);
 

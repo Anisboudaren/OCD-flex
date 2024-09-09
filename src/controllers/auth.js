@@ -3,8 +3,9 @@
 const User = require('../models/User');
 const OTP = require('../models/otpSchema')
 const  passport  = require('passport');
+const bcrypt = require('bcrypt')
 
-const register_new_client = async (req, res, next) => {
+const register_new_client = async (req, res, next) =>{
     try {
         const { username, email, phone, password, otp } = req.body;
 
@@ -153,12 +154,77 @@ const login_client = (req, res, next) => {
       });
     })(req, res, next);
   };
+
+  const crypto = require('crypto');
+
+  const {sendResetPasswordEmail} = require('../services/email'); // Assuming this is where mailSender is located
   
+  // Request a password reset
+  const requestPasswordReset = async (req, res) => {
+      try {
+          const { email } = req.body;
+          const user = await User.findOne({ email });
+          
+          if (!user) {
+              return res.status(404).json({ message: 'User not found' });
+          }
+          
+          // Generate a reset token
+          const resetToken = crypto.randomBytes(20).toString('hex');
+          
+          // Set expiration time (e.g., 1 hour)
+          user.resetPasswordToken = resetToken;
+          user.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+  
+          await user.save();
+          
+          // Construct the reset URL
+          const resetURL = `http://${req.headers.host}/reset-password/${resetToken}`;
+          
+          // Send the reset email
+          await sendResetPasswordEmail(user.email, resetToken, resetURL);
+          
+          res.json({ message: 'Password reset email sent' });
+      } catch (err) {
+          res.status(500).json({ message: 'Server error', error: err.message });
+      }
+  };
+   const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        // Find the user by reset token and check if the token has not expired
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }  // Token should not be expired
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        // Clear the reset token fields
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+        
+        res.json({ message: 'Password has been reset' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
 
 module.exports = { 
     register_new_client , 
     logout_client ,
     login_client ,
     register_checker ,
-
+    requestPasswordReset , 
+    resetPassword,
     };
